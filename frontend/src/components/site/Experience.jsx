@@ -31,10 +31,12 @@ const roles = [
     company: "OfficeBanao",
     note: "B2B Proptech & Marketplace · Gurugram",
     bullets: [
-      "Beta → commercial launch for multi-party API-driven marketplace",
-      "AI-in-sales (Midjourney/DALL-E) lifted lead-to-conversion by 45%",
-      "FIFO reconciliation engine cut vendor payout TAT by 30%",
-      "Real-time ops dashboards with 45%+ adoption in 60 days; 3× faster close",
+      "Drove B2B marketplace from beta to commercial launch — shipped API-driven integrations across fulfillment, payments, project management and procurement for a multi-party platform connecting vendors, contractors and enterprise buyers",
+      "Integrated AI tools (Midjourney, DALL-E) into lead conversion and sales rep workflows — reduced content ops time and improved lead-to-conversion by 45% via AI-assisted automation",
+      "Built project management mobile features — real-time site view tracking, daily progress logging, and a live project update dashboard for clients and project managers",
+      "Delivered order management and procurement platform — order creation, processing and shipment workflows streamlining multi-party fulfillment across the vendor ecosystem",
+      "Developed vendor payment system with FIFO reconciliation engine and credit history tracking — improving settlement accuracy, enabling risk-based decisioning, and cutting payout turnaround by 30%",
+      "Launched real-time ops monitoring dashboards with 45%+ vendor adoption in 60 days — reduced time-to-close on escalated issues by 3× by surfacing recurring failure patterns",
     ],
   },
   {

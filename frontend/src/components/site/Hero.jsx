@@ -3,7 +3,7 @@ import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 
 const stats = [
   { value: "150K+", label: "Users scaled (0→1, 2 months)" },
-  { value: "0 → 1", label: "RBI-compliant fintech shipped" },
+  { value: "0 → 10", label: "Product builder · 0→1 and 1→10" },
   { value: "60%", label: "Manual ops cut via GenAI" },
   { value: "0", label: "Mid-sprint changes, career-wide" },
 ];
@@ -50,7 +50,7 @@ export default function Hero() {
             <a
               href="#work"
               data-testid="hero-cta-work"
-              className="group inline-flex items-center gap-3 bg-[var(--fg)] text-[var(--bg)] px-6 py-3.5 text-sm font-medium hover:bg-[var(--muted)] transition-colors"
+              className="group inline-flex items-center gap-3 bg-[var(--cta)] text-[var(--cta-fg)] px-6 py-3.5 text-sm font-medium hover:bg-[var(--cta-hover)] transition-colors"
             >
               View selected work
               <ArrowDownRight className="size-4 transition-transform group-hover:translate-y-0.5 group-hover:translate-x-0.5" />
@@ -58,7 +58,7 @@ export default function Hero() {
             <a
               href="#contact"
               data-testid="hero-cta-contact"
-              className="group inline-flex items-center gap-3 border border-[var(--border-strong)] px-6 py-3.5 text-sm hover:bg-[var(--surface)] transition-colors"
+              className="group inline-flex items-center gap-3 border border-[var(--cta-ring)]/40 text-[var(--cta)] px-6 py-3.5 text-sm hover:border-[var(--cta-ring)] hover:bg-[var(--surface)] transition-colors"
             >
               Get in touch
               <ArrowUpRight className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />

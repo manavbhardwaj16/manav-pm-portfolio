@@ -65,7 +65,7 @@ export default function ChatWidget() {
         <button
           onClick={() => setOpen(true)}
           data-testid="chat-open-button"
-          className="fixed bottom-6 right-6 z-50 inline-flex items-center gap-2 bg-[var(--fg)] text-[var(--bg)] px-5 py-3.5 text-sm font-medium shadow-xl hover:bg-[var(--muted)] transition-colors group"
+          className="fixed bottom-6 right-6 z-50 inline-flex items-center gap-2 bg-[var(--cta)] text-[var(--cta-fg)] px-5 py-3.5 text-sm font-medium shadow-xl hover:bg-[var(--cta-hover)] transition-colors group"
         >
           <Sparkles className="size-4 transition-transform group-hover:rotate-12" />
           <span>Ask anything about Manav</span>
@@ -113,7 +113,7 @@ export default function ChatWidget() {
                 <div
                   className={`max-w-[85%] text-sm leading-relaxed px-3.5 py-2.5 ${
                     m.role === "user"
-                      ? "bg-[var(--fg)] text-[var(--bg)]"
+                      ? "bg-[var(--cta)] text-[var(--cta-fg)]"
                       : "bg-[var(--surface)] text-[var(--fg)] border border-[var(--border)]"
                   }`}
                 >

@@ -13,6 +13,12 @@
     --muted-2: #71717a;
     --accent: #f5f5f4;
 
+    /* Premium editorial CTA — warm parchment with bronze hover */
+    --cta: #ede4cf;
+    --cta-hover: #d8c9a3;
+    --cta-fg: #14110d;
+    --cta-ring: #b89968;
+
     --background: 240 6% 5%;
     --foreground: 0 0% 98%;
     --card: 240 5% 7%;
