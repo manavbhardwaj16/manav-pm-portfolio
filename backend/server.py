@@ -117,15 +117,94 @@ STYLE GUIDE FOR ANSWERS
 """
 
 
+PERSONA_TUNING = {
+    "hiring": (
+        "VIEWER PERSONA — Recruiter / Hiring Manager.\n"
+        "Tone: tight, business-first. Lead with role fit, recent outcomes, and signal."
+        " Mention seniority arc (APM → PM → Global PM track), domain fits (AI, fintech, B2C),"
+        " and the fact that he is currently OPEN TO ROLES."
+    ),
+    "building": (
+        "VIEWER PERSONA — Founder / Builder.\n"
+        "Tone: technical, product-deep. Lead with shipping speed, AI craft (HITL, confidence scoring,"
+        " RAG, eval loops), and 0→1 systems thinking. Show product depth and decisions."
+    ),
+    "curious": (
+        "VIEWER PERSONA — Curious peer or student.\n"
+        "Tone: warm and educational. Share frameworks and lessons over credentials."
+        " Explain why decisions were made, not just what they were."
+    ),
+}
+
+
+RESPONSE_FORMAT_RULES = """
+
+RESPONSE FORMAT — STRICT. You MUST reply using EXACTLY this structure, no preamble, no commentary:
+
+[REPLY]
+Your answer in 2–5 sentences. Plain prose, no markdown lists.
+[/REPLY]
+[FOLLOWUPS]
+- a short, specific next question the user is likely to ask (max 7 words)
+- another natural follow-up
+- a third, slightly more advanced follow-up
+[/FOLLOWUPS]
+[TOPICS]
+comma, separated, lowercase, short tags (2-5 tags from: ai, fintech, payments, b2c, b2b, 0to1, marketplace, hitl, rag, evals, growth, retention, ab-testing, compliance, kyc, reconciliation, leadership)
+[/TOPICS]
+"""
+
+
+def build_system_prompt(persona: Optional[str]) -> str:
+    parts = [MANAV_CONTEXT]
+    if persona and persona in PERSONA_TUNING:
+        parts.append(PERSONA_TUNING[persona])
+    parts.append(RESPONSE_FORMAT_RULES)
+    return "\n\n".join(parts)
+
+
+def parse_structured_reply(text: str) -> dict:
+    """Parse [REPLY] / [FOLLOWUPS] / [TOPICS] blocks. Falls back gracefully."""
+    import re
+
+    def find_block(tag: str) -> str:
+        m = re.search(rf"\[{tag}\](.*?)\[/{tag}\]", text, re.DOTALL | re.IGNORECASE)
+        return m.group(1).strip() if m else ""
+
+    reply = find_block("REPLY")
+    followups_raw = find_block("FOLLOWUPS")
+    topics_raw = find_block("TOPICS")
+
+    followups = []
+    for line in followups_raw.splitlines():
+        line = line.strip().lstrip("-•").strip()
+        if line:
+            followups.append(line)
+    followups = followups[:3]
+
+    topics = []
+    if topics_raw:
+        topics = [t.strip().lower() for t in topics_raw.split(",") if t.strip()][:5]
+
+    # Fallback: if no [REPLY] tag, use full text as reply
+    if not reply:
+        reply = text.strip()
+
+    return {"reply": reply, "suggestions": followups, "topics": topics}
+
+
 # ---------- Models ----------
 class ChatRequest(BaseModel):
     message: str
     session_id: Optional[str] = None
+    persona: Optional[str] = None  # "hiring" | "building" | "curious"
 
 
 class ChatResponse(BaseModel):
     session_id: str
     reply: str
+    suggestions: List[str] = []
+    topics: List[str] = []
 
 
 class ContactRequest(BaseModel):
@@ -169,11 +248,15 @@ async def chat(req: ChatRequest):
         chat_instance = LlmChat(
             api_key=EMERGENT_LLM_KEY,
             session_id=session_id,
-            system_message=MANAV_CONTEXT,
+            system_message=build_system_prompt(req.persona),
         ).with_model("anthropic", "claude-sonnet-4-5-20250929")
 
-        reply = await chat_instance.send_message(UserMessage(text=req.message))
-        reply_text = str(reply) if reply is not None else ""
+        raw = await chat_instance.send_message(UserMessage(text=req.message))
+        raw_text = str(raw) if raw is not None else ""
+        parsed = parse_structured_reply(raw_text)
+        reply_text = parsed["reply"]
+        suggestions = parsed["suggestions"]
+        topics = parsed["topics"]
     except Exception as e:
         logger.exception("LLM call failed")
         raise HTTPException(status_code=502, detail=f"LLM error: {e}")
@@ -184,11 +267,19 @@ async def chat(req: ChatRequest):
         "session_id": session_id,
         "role": "assistant",
         "content": reply_text,
+        "suggestions": suggestions,
+        "topics": topics,
+        "persona": req.persona,
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
     await db.chat_messages.insert_one(asst_doc)
 
-    return ChatResponse(session_id=session_id, reply=reply_text)
+    return ChatResponse(
+        session_id=session_id,
+        reply=reply_text,
+        suggestions=suggestions,
+        topics=topics,
+    )
 
 
 @api_router.post("/contact")

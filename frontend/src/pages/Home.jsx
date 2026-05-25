@@ -10,6 +10,7 @@ import Skills from "@/components/site/Skills";
 import Contact from "@/components/site/Contact";
 import Footer from "@/components/site/Footer";
 import ChatWidget from "@/components/site/ChatWidget";
+import ScrollProgress from "@/components/site/ScrollProgress";
 
 export default function Home() {
   // Reveal-on-scroll
@@ -32,6 +33,7 @@ export default function Home() {
 
   return (
     <main className="relative min-h-screen bg-[var(--bg)] text-[var(--fg)]" data-testid="home-page">
+      <ScrollProgress />
       <Nav />
       <Hero />
       <div className="hairline" />
