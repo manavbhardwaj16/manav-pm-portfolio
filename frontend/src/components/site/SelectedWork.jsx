@@ -1,20 +1,23 @@
-import React from "react";
+import React, { useState } from "react";
 import { ArrowUpRight } from "lucide-react";
+import CaseStudyDrawer from "@/components/site/CaseStudyDrawer";
 
 const works = [
   {
     idx: "01",
+    slug: "thryl",
+    hasCaseStudy: true,
     title: "Thryl",
-    subtitle: "B2C Esports & Gaming Platform",
+    subtitle: "B2C Esports & Gaming Platform · iOS + Android",
     summary:
-      "Took the product from 0 to 150K+ users in two months as a 0→1 and 1→10 builder. Funnel and cohort analysis cut time-to-first-value by 40% and lifted D30 retention by 25%. Structured A/B tests across onboarding and engagement grew DAU by 30%.",
+      "Founding PM. Took the product from 0 to 150K+ users in two months as a 0→1 and 1→10 builder. Funnel and cohort analysis cut time-to-first-value by 40% and lifted D30 retention by 25%. Structured A/B tests across onboarding and engagement grew DAU by 30%. Also built Thryl Web — a companion organizer platform for studios to run tournaments live.",
     metrics: [
       { v: "150K+", l: "Users in 2 months" },
       { v: "+30%", l: "DAU growth" },
       { v: "+25%", l: "D30 retention" },
       { v: "-60%", l: "Manual support ops" },
     ],
-    tags: ["0→1 & 1→10", "Funnel design", "GenAI Support Ops", "Mobile B2C"],
+    tags: ["Founding PM", "0→1 & 1→10", "iOS + Android", "Organizer Web Platform"],
     image: "https://manavbhardwaj.lovable.app/assets/thryl-BF32bhW_.png",
   },
   {
@@ -65,6 +68,11 @@ const works = [
 ];
 
 export default function SelectedWork() {
+  const [openCase, setOpenCase] = useState(null);
+
+  const onOpen = (slug) => setOpenCase(slug);
+  const onClose = () => setOpenCase(null);
+
   return (
     <section id="work" data-testid="work-section" className="py-24 md:py-36">
       <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
@@ -86,7 +94,16 @@ export default function SelectedWork() {
         </div>
 
         <div className="flex flex-col gap-24 md:gap-32">
-          {works.map((w, i) => (
+          {works.map((w, i) => {
+            const clickable = !!w.hasCaseStudy;
+            const handleOpen = () => clickable && onOpen(w.slug);
+            const handleKey = (e) => {
+              if (clickable && (e.key === "Enter" || e.key === " ")) {
+                e.preventDefault();
+                onOpen(w.slug);
+              }
+            };
+            return (
             <article
               key={w.idx}
               data-testid={`work-card-${w.title.toLowerCase()}`}
@@ -97,6 +114,12 @@ export default function SelectedWork() {
                 className={`lg:col-span-7 ${
                   i % 2 === 1 ? "lg:order-2" : ""
                 }`}
+                onClick={handleOpen}
+                role={clickable ? "button" : undefined}
+                tabIndex={clickable ? 0 : -1}
+                onKeyDown={handleKey}
+                data-testid={clickable ? `work-open-${w.slug}` : undefined}
+                style={{ cursor: clickable ? "pointer" : "default" }}
               >
                 <div className="relative border border-[var(--border)] bg-[var(--surface)] overflow-hidden aspect-[4/3] group">
                   <img
@@ -114,6 +137,12 @@ export default function SelectedWork() {
                   <div className="absolute top-4 left-4 eyebrow bg-[var(--bg)]/70 backdrop-blur px-2 py-1 border border-[var(--border)]">
                     Case Study {w.idx}
                   </div>
+                  {clickable && (
+                    <div className="absolute bottom-4 right-4 flex items-center gap-2 bg-[var(--cta)] text-[var(--cta-fg)] px-3 py-2 text-xs font-medium opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-all duration-300">
+                      Open case study
+                      <ArrowUpRight className="size-3.5" />
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -164,11 +193,29 @@ export default function SelectedWork() {
                     </span>
                   ))}
                 </div>
+
+                {clickable && (
+                  <button
+                    type="button"
+                    onClick={handleOpen}
+                    data-testid={`work-cta-${w.slug}`}
+                    className="group mt-8 inline-flex items-center gap-2 self-start border-b border-[var(--cta-ring)]/40 hover:border-[var(--cta-ring)] text-[var(--cta)] pb-1 text-sm transition-colors"
+                  >
+                    Read the full case study
+                    <ArrowUpRight className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                  </button>
+                )}
               </div>
             </article>
-          ))}
+            );
+          })}
         </div>
       </div>
+
+      <CaseStudyDrawer
+        open={openCase === "thryl"}
+        onClose={onClose}
+      />
     </section>
   );
 }
