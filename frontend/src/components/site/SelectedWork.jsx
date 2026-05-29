@@ -22,6 +22,8 @@ const works = [
   },
   {
     idx: "02",
+    slug: "kredyble",
+    hasCaseStudy: true,
     title: "Kredyble",
     subtitle: "B2B Fintech Payments · RBI-regulated",
     summary:
@@ -37,6 +39,8 @@ const works = [
   },
   {
     idx: "03",
+    slug: "officebanao",
+    hasCaseStudy: true,
     title: "OfficeBanao",
     subtitle: "B2B Proptech Marketplace",
     summary:
@@ -52,6 +56,8 @@ const works = [
   },
   {
     idx: "04",
+    slug: "evify",
+    hasCaseStudy: true,
     title: "Evify",
     subtitle: "Rider App & Real-Time FleetOps ERP",
     summary:
@@ -213,7 +219,7 @@ export default function SelectedWork() {
       </div>
 
       <CaseStudyDrawer
-        open={openCase === "thryl"}
+        slug={openCase}
         onClose={onClose}
       />
     </section>
