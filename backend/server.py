@@ -24,6 +24,9 @@ GROQ_MODEL = os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile")
 groq_client = AsyncGroq(api_key=GROQ_API_KEY) if GROQ_API_KEY else None
 
 app = FastAPI(title="Manav Bhardwaj Portfolio API")
+@app.get("/")
+async def health():
+    return {"message": "Manav Bhardwaj Portfolio API", "ok": True}
 api_router = APIRouter(prefix="/api")
 
 # ----- System prompt for "Ask me anything about Manav" chatbot -----
