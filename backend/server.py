@@ -10,7 +10,7 @@ from pydantic import BaseModel, Field, EmailStr
 from typing import List, Optional
 from datetime import datetime, timezone
 
-from emergentintegrations.llm.chat import LlmChat, UserMessage
+from groq import AsyncGroq
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / ".env")
@@ -19,7 +19,9 @@ mongo_url = os.environ["MONGO_URL"]
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ["DB_NAME"]]
 
-EMERGENT_LLM_KEY = os.environ.get("EMERGENT_LLM_KEY", "")
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
+GROQ_MODEL = os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile")
+groq_client = AsyncGroq(api_key=GROQ_API_KEY) if GROQ_API_KEY else None
 
 app = FastAPI(title="Manav Bhardwaj Portfolio API")
 api_router = APIRouter(prefix="/api")
@@ -224,8 +226,8 @@ async def root():
 
 @api_router.post("/chat", response_model=ChatResponse)
 async def chat(req: ChatRequest):
-    if not EMERGENT_LLM_KEY:
-        raise HTTPException(status_code=500, detail="LLM key not configured")
+    if not groq_client:
+        raise HTTPException(status_code=500, detail="GROQ_API_KEY not configured")
 
     session_id = req.session_id or str(uuid.uuid4())
 
@@ -239,21 +241,36 @@ async def chat(req: ChatRequest):
     }
     await db.chat_messages.insert_one(user_doc)
 
-    try:
-        chat_instance = LlmChat(
-            api_key=EMERGENT_LLM_KEY,
-            session_id=session_id,
-            system_message=build_system_prompt(req.persona),
-        ).with_model("anthropic", "claude-sonnet-4-5-20250929")
+    # Build message history for this session
+    history = (
+        await db.chat_messages.find(
+            {"session_id": session_id},
+            {"_id": 0, "role": 1, "content": 1, "created_at": 1},
+        )
+        .sort("created_at", 1)
+        .to_list(length=40)
+    )
 
-        raw = await chat_instance.send_message(UserMessage(text=req.message))
-        raw_text = str(raw) if raw is not None else ""
+    messages = [{"role": "system", "content": build_system_prompt(req.persona)}]
+    for h in history:
+        role = h.get("role")
+        if role in ("user", "assistant") and h.get("content"):
+            messages.append({"role": role, "content": h["content"]})
+
+    try:
+        completion = await groq_client.chat.completions.create(
+            model=GROQ_MODEL,
+            messages=messages,
+            temperature=0.7,
+            max_tokens=900,
+        )
+        raw_text = completion.choices[0].message.content or ""
         parsed = parse_structured_reply(raw_text)
         reply_text = parsed["reply"]
         suggestions = parsed["suggestions"]
         topics = parsed["topics"]
     except Exception as e:
-        logger.exception("LLM call failed")
+        logger.exception("Groq call failed")
         raise HTTPException(status_code=502, detail=f"LLM error: {e}")
 
     # Persist assistant reply
