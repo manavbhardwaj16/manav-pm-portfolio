@@ -37,6 +37,7 @@ ALLOWED_ORIGINS = [
     "https://manav-pm-portfolio.vercel.app",
     "http://localhost:3000",
     "http://localhost:3001",
+    "https://9b1af735-9f20-43e8-b545-349b9858213a.preview.emergentagent.com",
 ]
 # Add any additional origins from environment variable
 if os.environ.get("CORS_ORIGINS"):
