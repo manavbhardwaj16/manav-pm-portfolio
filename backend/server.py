@@ -24,6 +24,12 @@ GROQ_MODEL = os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile")
 groq_client = AsyncGroq(api_key=GROQ_API_KEY) if GROQ_API_KEY else None
 
 app = FastAPI(title="Manav Bhardwaj Portfolio API")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://manav-pm-portfolio.vercel.app"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 @app.get("/")
 async def health():
     return {"message": "Manav Bhardwaj Portfolio API", "ok": True}
