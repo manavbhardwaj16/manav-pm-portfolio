@@ -31,6 +31,6 @@
   "seed_data_creation": "Inserted 1 TEST_ contact submission via API test and 1 via UI test (TEST UI / test_ui@example.com). Chat sessions created in db.chat_messages.",
   "retest_needed": false,
   "main_agent_can_self_test": true,
-  "context_for_next_testing_agent": "Public URL from frontend/.env: https://ai-product-builder-10.preview.emergentagent.com (the URL in the original review_request was different — use the one in frontend/.env). pytest file at /app/backend/tests/backend_test.py covers root, chat (basic+session+422), contact (valid+invalid email+missing fields), contact count baseline+increment. ChatWidget uses anthropic claude-sonnet-4-5-20250929 via Emergent LLM key — replies take ~10-20s. ContactRecord.id is a uuid string and stored alongside Mongo _id (which is never returned).",
+  "context_for_next_testing_agent": "Public URL from frontend/.env: https://manav-chat.preview.emergentagent.com (the URL in the original review_request was different — use the one in frontend/.env). pytest file at /app/backend/tests/backend_test.py covers root, chat (basic+session+422), contact (valid+invalid email+missing fields), contact count baseline+increment. ChatWidget uses anthropic claude-sonnet-4-5-20250929 via Emergent LLM key — replies take ~10-20s. ContactRecord.id is a uuid string and stored alongside Mongo _id (which is never returned).",
   "rca of the issue": "No issues found."
 }

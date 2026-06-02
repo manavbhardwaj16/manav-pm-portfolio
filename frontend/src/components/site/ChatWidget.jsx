@@ -2,8 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { X, Send, Sparkles, Briefcase, Hammer, Compass } from "lucide-react";
 
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
-
 const PERSONAS = [
   {
     id: "hiring",
@@ -75,7 +73,7 @@ export default function ChatWidget() {
     setSending(true);
     setSuggestions([]);
     try {
-      const res = await axios.post(`${API}/chat`, {
+      const res = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/chat`, {
         message,
         session_id: sessionId,
         persona: persona,

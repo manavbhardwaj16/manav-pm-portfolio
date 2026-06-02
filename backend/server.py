@@ -12,6 +12,13 @@ from datetime import datetime, timezone
 
 from groq import AsyncGroq
 
+# Setup logging first
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
+logger = logging.getLogger(__name__)
+
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / ".env")
 
@@ -24,15 +31,29 @@ GROQ_MODEL = os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile")
 groq_client = AsyncGroq(api_key=GROQ_API_KEY) if GROQ_API_KEY else None
 
 app = FastAPI(title="Manav Bhardwaj Portfolio API")
+
+# CORS configuration - allow both Vercel domain and any other origins from env
+ALLOWED_ORIGINS = [
+    "https://manav-pm-portfolio.vercel.app",
+    "http://localhost:3000",
+    "http://localhost:3001",
+]
+# Add any additional origins from environment variable
+if os.environ.get("CORS_ORIGINS"):
+    ALLOWED_ORIGINS.extend(os.environ.get("CORS_ORIGINS", "").split(","))
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://manav-pm-portfolio.vercel.app"],
+    allow_origins=ALLOWED_ORIGINS,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 @app.get("/")
 async def health():
     return {"message": "Manav Bhardwaj Portfolio API", "ok": True}
+
 api_router = APIRouter(prefix="/api")
 
 # ----- System prompt for "Ask me anything about Manav" chatbot -----
@@ -316,21 +337,9 @@ async def contact_count():
     return {"count": count}
 
 
+
+
 app.include_router(api_router)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_credentials=True,
-    allow_origins=os.environ.get("CORS_ORIGINS", "*").split(","),
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
-logger = logging.getLogger(__name__)
 
 
 @app.on_event("shutdown")
