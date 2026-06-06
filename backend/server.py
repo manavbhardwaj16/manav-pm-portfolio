@@ -24,7 +24,7 @@ load_dotenv(ROOT_DIR / ".env")
 
 mongo_url = os.environ["MONGO_URL"]
 import ssl
-client = AsyncIOMotorClient(mongo_url, tls=True, tlsAllowInvalidCertificates=True)
+client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ["DB_NAME"]]
 
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
