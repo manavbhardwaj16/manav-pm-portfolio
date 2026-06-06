@@ -215,11 +215,12 @@ def parse_structured_reply(text: str) -> dict:
     if topics_raw:
         topics = [t.strip().lower() for t in topics_raw.split(",") if t.strip()][:5]
 
-    # Fallback: if no [REPLY] tag, use full text as reply
+    # Fallback: if no [REPLY] tag found, use text before any tag block
     if not reply:
-        reply = text.strip()
-
-    return {"reply": reply, "suggestions": followups, "topics": topics}
+        cleaned = re.split(r'\[/?(?:REPLY|FOLLOWUPS|TOPICS)\]', text, flags=re.IGNORECASE)[0]
+        reply = cleaned.strip()
+    # Final safety: strip any remaining tag artifacts from reply
+    reply = re.sub(r'\[/?(?:REPLY|FOLLOWUPS|TOPICS)[^\]]*\].*', '', reply, flags=re.DOTALL | re.IGNORECASE).strip()
 
 
 # ---------- Models ----------
